@@ -28,6 +28,10 @@ Simply include this gem in your project:
   require 'quickbooks'
 
 Without any configuration, you should be able to talk to Quickbooks immediately if it and a company file is open on the same computer:
+  Quickbooks::Base.setup(
+    :support_simple_start => true,
+    :personal_data        => :not_needed
+  )
   c = Quickbooks::Customer.first
   c.phone = '(123) 456-7890'
   c.first_name = 'Joey'
@@ -39,7 +43,7 @@ Read further in Qbxml::Request and Qbxml::Response in order to get a better unde
 Again, until a later version, you will need to be running Quickbooks on the same computer _and have quickbooks open_ to the company file you need. The first time you run your script, you will need to authorize access to your script when Quickbooks asks you to.
 
 h2. Authors
-  
+
 * Chris Bruce (mailto:chrisabruce@yahoo.com)
 * Daniel Parker (mailto:gems@behindlogic.com)
 

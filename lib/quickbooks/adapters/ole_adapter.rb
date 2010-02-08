@@ -59,6 +59,12 @@ module Quickbooks
       SUPPORT_PREMIER      = 0X4
       SUPPORT_ENTERPRISE   = 0X8
 
+      PERSONAL_DATA = {
+        :required   => 0x1,
+        :optional   => 0x2,
+        :not_needed => 0x3
+      }
+
       class << self #:nodoc: all
         def connections
           @connections || (@connections = [])
@@ -82,6 +88,7 @@ module Quickbooks
       # - _connection_type_ can be one of: ['unknown', 'localQBD', 'remoteQBD', 'localQBDLaunchUI', 'remoteQBOE']
       # - _connection_mode_ can be one of: ['SingleUser', 'MultiUser', 'DoNotCare']
       # - _support_simple_start_ (true/false) Simple Start is not supported by default because it only has a subset of the features in other quickbooks flavors
+      # - _personal_data_ can be one of: [:required, :optional, :not_needed] (:optional is the default)
       def initialize(options = {})
         @options = {
           :application_name => 'RubyApplication',
@@ -90,7 +97,8 @@ module Quickbooks
           :password => '',                    #FIXME: this option is never used
           :connection_type => 'localQBD',
           :connection_mode => 'DoNotCare',
-          :support_simple_start => false
+          :support_simple_start => false,
+          :personal_data => :optional
         }.merge(options)
         @application_name = @options[:application_name]
         @quickbooks = Ole.new('QBXMLRP2.RequestProcessor', 'QBXMLRP2 1.0 Type Library')
@@ -98,6 +106,10 @@ module Quickbooks
         @connection_mode = @quickbooks.get_variable('qbFileOpen'+@options[:connection_mode])
         @supported_flavors = SUPPORT_PRO | SUPPORT_PREMIER | SUPPORT_ENTERPRISE
         @supported_flavors |= SUPPORT_SIMPLE_START if @options[:support_simple_start]
+        @personal_data_flag = PERSONAL_DATA[@options[:personal_data]]
+        unless @personal_data_flag
+          raise ArgumentError, "Unsupported value for :personal_data on Connection, should be one of these: #{PERSONAL_DATA.keys.inspect}"
+        end
       end
 
       # Returns true if there is an open connection to Quickbooks, false if not. Use session? to determine an open session.
@@ -133,6 +145,7 @@ module Quickbooks
       def session
         @session || begin
           connection.AuthPreferences.PutAuthFlags(@supported_flavors)
+          connection.AuthPreferences.PutPersonalDataPref(@personal_data_flag)
           @session = connection.BeginSession(@options[:file],@connection_mode)
         end
       end
