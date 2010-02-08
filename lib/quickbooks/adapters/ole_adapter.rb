@@ -4,7 +4,7 @@ module Quickbooks
   # Connection is used internally by Quickbooks::Base to automatically manage a the communication with quickbooks.
   # Currently the only connection mode supported is WIN32OlE, which means your application must be running on the
   # same computer as Quickbooks.
-  # 
+  #
   # Quickbooks does not allow the user to close the company or exit the program until all outside applications are
   # disconnected from its API. Therefore, this class includes an at_exit hook that automatically closes all open
   # connections for you when your program exits.
@@ -54,6 +54,11 @@ module Quickbooks
     end
 
     class Connection
+      SUPPORT_SIMPLE_START = 0X1
+      SUPPORT_PRO          = 0X2
+      SUPPORT_PREMIER      = 0X4
+      SUPPORT_ENTERPRISE   = 0X8
+
       class << self #:nodoc: all
         def connections
           @connections || (@connections = [])
@@ -76,7 +81,8 @@ module Quickbooks
       # - _user_ and _password_ may be required if you have specified a specific file to open.
       # - _connection_type_ can be one of: ['unknown', 'localQBD', 'remoteQBD', 'localQBDLaunchUI', 'remoteQBOE']
       # - _connection_mode_ can be one of: ['SingleUser', 'MultiUser', 'DoNotCare']
-      def initialize(application_name='RubyApplication', file='', user='', password='', connection_type='localQBD', connection_mode='DoNotCare')
+      # - _support_simple_start_ can be true or false
+      def initialize(application_name='RubyApplication', file='', user='', password='', connection_type='localQBD', connection_mode='DoNotCare', support_simple_start=false)
         @file = file
         @user = user
         @password = password
@@ -84,6 +90,10 @@ module Quickbooks
         @quickbooks = Ole.new('QBXMLRP2.RequestProcessor', 'QBXMLRP2 1.0 Type Library')
         @connection_type = @quickbooks.get_variable(connection_type)
         @connection_mode = @quickbooks.get_variable('qbFileOpen'+connection_mode)
+        #these flavors are supported by default
+        @supported_flavors = SUPPORT_PRO | SUPPORT_PREMIER | SUPPORT_ENTERPRISE
+        #Simple Start is not supported by default because it only has a subset of the features in other quickbooks flavors
+        @supported_flavors |= SUPPORT_SIMPLE_START if support_simple_start
       end
 
       # Returns true if there is an open connection to Quickbooks, false if not. Use session? to determine an open session.
@@ -118,6 +128,7 @@ module Quickbooks
       # Begin a session to Quickbooks.
       def session
         @session || begin
+          connection.AuthPreferences.PutAuthFlags(@supported_flavors)
           @session = connection.BeginSession(@file,@connection_mode)
         end
       end
