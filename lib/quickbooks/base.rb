@@ -5,7 +5,7 @@
 # write though -- take a look at customer.rb, for example: all that needs defining for most models is any filters (and aliases)
 # specific to that model, and a listing of that model's attributes. If you write a model, please send in your code to
 # gems@behindlogic.com!
-# 
+#
 # Inherits from ListItem:
 # - Account
 # - Account List
@@ -76,7 +76,7 @@ require 'qbxml'
 
 module Quickbooks
   # Base is just base for ListItem and Transaction. It inherits from Model, just as Ref does.
-  # 
+  #
   # Some Qbxml specifications require certain finder-options to be placed inside a containing entity, such as:
   #   ...
   #   <DeletedDateRangeFilter>
@@ -87,7 +87,7 @@ module Quickbooks
   # The Quickbooks Models define aliases to these "inside" options. The equivalent to the above [partial] request:
   #   Quickbooks::Deleted.all(:deleted_after => (Time.now - 5*60*60).xmlschema, :deleted_before => (Time.now - 3*60*60).xmlschema)
   # (Type-casting hasn't made it in yet.)
-  # 
+  #
   # Qbxml makes a special allowance for Deleted items. Much of the time, we'd rather access a model's deleted items through that
   # model class instead of through the deleted class. So Qbxml allows any class to ask for its deleted items through a call like
   # this:
@@ -117,23 +117,23 @@ module Quickbooks
         @@connection_adapter = Object.module_eval("::Quickbooks::#{adapter.to_s.camelize}Adapter::Connection", __FILE__, __LINE__)
       end
 
-      def setup(*args)
-        @@connection_args = args
+      def setup(options={})
+        @@connection_options = options
       end
 
       # Establishes a connection to the Quickbooks RDS Server for all Model Classes
-      def establish_connection(*args)
+      def establish_connection(options={})
         @@connection_adapter ||= use_adapter(:ole)
-        @@connection = @@connection_adapter.new(*args)
+        @@connection = @@connection_adapter.new(options)
       end
 
       # Returns the current Connection
       def connection
-        @connection || (@@connection ||= self.establish_connection(*(@@connection_args)))
+        @connection || (@@connection ||= self.establish_connection(@@connection_options))
       end
 
       # Sets the current Connection.
-      # 
+      #
       # This is normally not needed, but in the case that you may want to connect a separate connection to Quickbooks,
       # you can use this method to explicitly set the connection in a class that inherits from Quickbooks::Base.
       #   Quickbooks::Models::Base.connection = Quickbooks::Connection.new('My Test App', 'C:\\Some File.QBW', 'user', 'pass')
@@ -149,7 +149,7 @@ module Quickbooks
       # Generates a request by sending *args to Qbxml::Request.new, sends the request over the current connection,
       # and interprets the response using Qbxml::ResponseSet.
       # The response is then instantiated into an object or an array of objects.
-      # 
+      #
       # This method is used mostly internally, but it is the yoke of this library - use it to perform custom requests.
       def query(obj_or_args,*args)
         # If an object is sent, we need to reinstantiate the response into that object
@@ -257,7 +257,7 @@ module Quickbooks
     end
 
     # Saves the attributes that have changed.
-    # 
+    #
     # If the EditSequence is out of date but none of the changes conflict, the object will be saved to Quickbooks.
     # But if there are conflicts, the updated values from Quickbooks will be written to the original_values, and false is returned.
     # This way you can deal with the differences (conflicts), if you so desire, and simply call save again to commit your changes.
