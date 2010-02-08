@@ -87,6 +87,7 @@ module Quickbooks
       # - _user_ and _password_ may be required if you have specified a specific file to open.
       # - _connection_type_ can be one of: ['unknown', 'localQBD', 'remoteQBD', 'localQBDLaunchUI', 'remoteQBOE']
       # - _connection_mode_ can be one of: ['SingleUser', 'MultiUser', 'DoNotCare']
+      # - _unattended_mode_ (true/false) Unattended mode will allow access even when QuickBooks is not running (false is the default)
       # - _support_simple_start_ (true/false) Simple Start is not supported by default because it only has a subset of the features in other quickbooks flavors
       # - _personal_data_ can be one of: [:required, :optional, :not_needed] (:optional is the default)
       def initialize(options = {})
@@ -97,6 +98,7 @@ module Quickbooks
           :password => '',                    #FIXME: this option is never used
           :connection_type => 'localQBD',
           :connection_mode => 'DoNotCare',
+          :unattended_mode => false,
           :support_simple_start => false,
           :personal_data => :optional
         }.merge(options)
@@ -146,6 +148,7 @@ module Quickbooks
         @session || begin
           connection.AuthPreferences.PutAuthFlags(@supported_flavors)
           connection.AuthPreferences.PutPersonalDataPref(@personal_data_flag)
+          connection.AuthPreferences.PutUnattendedModePref(0x1) if @options[:unattended_mode]
           @session = connection.BeginSession(@options[:file],@connection_mode)
         end
       end

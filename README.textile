@@ -28,8 +28,12 @@ Simply include this gem in your project:
   require 'quickbooks'
 
 Without any configuration, you should be able to talk to Quickbooks immediately if it and a company file is open on the same computer:
+  # setting unattended_mode to true and personal_data to not_needed has a nice
+  # side effect...it reduces the UI controls in the QB confirmation screen
+  # to a simple Yes/No radio selection
   Quickbooks::Base.setup(
     :support_simple_start => true,
+    :unattended_mode      => true,
     :personal_data        => :not_needed
   )
   c = Quickbooks::Customer.first
