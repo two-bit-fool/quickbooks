@@ -1,7 +1,26 @@
-# In order to run these tests you need to have a test Company file. I didn't include one because it would take up the bulk of the size
-# of an svn checkout. Just create a new company and open it. Make a couple people, and change some of the tests to include the right
-# names or whatever they reference. Sorry, it's not necessarily meant to be easy.
-
-$TESTING=true
-$:.push File.join(File.dirname(__FILE__), '..', 'lib')
+$: << File.join(File.dirname(__FILE__), '..', 'lib')
 require 'quickbooks'
+require 'rbconfig'
+
+MS_WINDOWS = Config::CONFIG['host_os'] =~ /mswin|mingw/ unless defined?(MS_WINDOWS)
+
+if MS_WINDOWS
+  test_file = File.join(File.dirname(File.expand_path(__FILE__)), 'test.qbw')
+  test_file.gsub!('/','\\')
+
+  unless File.exists?(test_file)
+    puts "To run these specs, create a new company called test and save it"
+    puts "as: #{test_file}"
+    exit
+  end
+
+  Quickbooks::Base.setup(
+    :support_simple_start => true,
+    :file                 => test_file,
+    :application_name     => "quickbooks gem specs",
+    :unattended_mode      => true,
+    :personal_data        => :not_needed
+  )
+else
+  puts "WARNING: skipping all tests that can only be run on MS Windows"
+end
