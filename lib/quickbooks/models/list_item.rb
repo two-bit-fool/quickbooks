@@ -6,7 +6,7 @@ module Quickbooks
   # (See Deleted for specifics on those options.)
   class ListItem < Base
 
-    self.valid_filters += ['list_id', 'full_name']
+    self.valid_filters += ['list_id', 'full_name', 'list_del_type']
     self.filter_aliases = {'updated_after' => 'from_modified_date', 'updated_before' => 'to_modified_date'}
 
     def self.inherited(klass)

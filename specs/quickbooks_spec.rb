@@ -13,7 +13,7 @@ if MS_WINDOWS
   describe "quickbooks" do
     before do
       Quickbooks::Customer.all.each do |cust|
-        cust.destroy
+        cust.destroy if cust
       end
       Quickbooks::Customer.new(
         :name       => 'Doe, John',
@@ -176,6 +176,41 @@ if MS_WINDOWS
       end
 
     end
+
+
+    describe "time deleted filters" do
+
+      before do
+        old_customer_name = "Customer ##{rand(1000)}"
+        new_customer_name = old_customer_name.succ
+        old_customer = Quickbooks::Customer.new(:name => old_customer_name)
+        new_customer = Quickbooks::Customer.new(:name => new_customer_name)
+        old_customer.save
+        new_customer.save
+        @old_customer_id = old_customer.list_id
+        @new_customer_id = new_customer.list_id
+        Quickbooks::Customer.first(:list_id => @old_customer_id).destroy
+        sleep(2) #QB doesn't do fractions of a second
+        @deletion_time = Time.now
+        Quickbooks::Customer.first(:list_id => @new_customer_id).destroy
+      end
+
+      it "should respect the deleted_before filter" do
+        results = Quickbooks::Customer.deleted(:deleted_before => @deletion_time)
+        results.map{|c| c.list_id}.should include(@old_customer_id)
+        results.map{|c| c.list_id}.should_not include(@new_customer_id)
+      end
+
+      it "should respect the deleted_after filter" do
+        results = Quickbooks::Customer.deleted(:deleted_after => @deletion_time)
+        #TODO: change the query method to always return an array unless we call "first"
+        results = [results].flatten
+        results.map{|c| c.list_id}.should_not include(@old_customer_id)
+        results.map{|c| c.list_id}.should include(@new_customer_id)
+      end
+
+    end
+
 
   end
 
