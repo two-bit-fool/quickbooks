@@ -8,26 +8,26 @@ class Quickbooks::Transaction < Quickbooks::Base
   end
 
   # Currently, the following transaction types can be modified:
-  # • Bill
-  # • BillPaymentCheck
-  # • BuildAssembly
-  # • Charge
-  # • Check
-  # • CreditCardCharge
-  # • CreditCardCredit
-  # • CreditMemo
-  # • Deposit
-  # • Estimate
-  # • Invoice
-  # • JournalEntry
-  # • ItemReceipt
-  # • PriceLevel
-  # • PurchaseOrder
-  # • ReceivePayment
-  # • SalesOrder
-  # • SalesReceipt
-  # • StatementCharge
-  # • TimeTracking
+  # * Bill
+  # * BillPaymentCheck
+  # * BuildAssembly
+  # * Charge
+  # * Check
+  # * CreditCardCharge
+  # * CreditCardCredit
+  # * CreditMemo
+  # * Deposit
+  # * Estimate
+  # * Invoice
+  # * JournalEntry
+  # * ItemReceipt
+  # * PriceLevel
+  # * PurchaseOrder
+  # * ReceivePayment
+  # * SalesOrder
+  # * SalesReceipt
+  # * StatementCharge
+  # * TimeTracking
 
   class << self
     def ListOrTxn
