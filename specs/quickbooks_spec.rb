@@ -109,8 +109,6 @@ if MS_WINDOWS
     end
 
     it "should add a client" do
-      existing = Quickbooks::Customer.first(:full_name => 'Graham Roosevelt')
-      existing.destroy if existing
       j = Quickbooks::Customer.new(:name => 'Graham Roosevelt')
       j.save
       j.list_id.should_not be_nil
@@ -157,10 +155,6 @@ if MS_WINDOWS
       before do
         @old_customer_name = 'Slightly New Customer'
         @new_customer_name = 'A Very New Customer'
-        existing = Quickbooks::Customer.first(:full_name => @new_customer_name)
-        existing.destroy if existing
-        existing = Quickbooks::Customer.first(:full_name => @old_customer_name)
-        existing.destroy if existing
         Quickbooks::Customer.new(:name => @old_customer_name).save
         sleep(2) #QB doesn't do fractions of a second
         @new_customer_time = Time.now
