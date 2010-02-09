@@ -4,7 +4,7 @@ module Quickbooks
   end
 
   class ListDeleted < Deleted
-    self.valid_filters = ['list_del_type', 'deleted_date_range_filter/from_deleted_date', 'deleted_date_range_filter/to_deleted_date']
+    self.valid_filters += ['list_del_type', 'deleted_date_range_filter/from_deleted_date', 'deleted_date_range_filter/to_deleted_date']
     class << self
       def ListOrTxn
         'List'

@@ -1,13 +1,13 @@
 class Quickbooks::Transaction < Quickbooks::Base
 
-  self.valid_filters = ['txn_id']
+  self.valid_filters += ['txn_id']
 
   def self.inherited(klass)
     super
     klass.read_only :txn_id, :full_name, :edit_sequence, :time_created, :time_modified
   end
 
-  # Currently, the following transaction types can be modified: 
+  # Currently, the following transaction types can be modified:
   # • Bill
   # • BillPaymentCheck
   # • BuildAssembly

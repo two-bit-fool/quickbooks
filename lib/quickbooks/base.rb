@@ -166,27 +166,36 @@ module Quickbooks
         self.request(reinstantiate || self, *args).each { |response| objects.concat(response.instantiate(reinstantiate)) } # Does not instantiate if it's an error, but simply records response into response_log
         # Since Quickbooks only honors the Date in queries, we can filter the list further here to honor the Time requested.
         # filters we're triggered on: created_before, created_after, updated_before, updated_after, deleted_before, deleted_after
-        if args[-1].is_a?(Hash) && !(time_filters = args[-1].stringify_keys.only('created_before', 'created_after', 'updated_before', 'updated_after', 'deleted_before', 'deleted_after')).empty?
-          objects.reject! do |object|
-            passes = true if object # When there are no results, we actually get [nil]
-            time_filters.each do |filter,time|
-              break unless passes # Skip the rest of the tests if it fails one
-              case filter
-              when 'created_before'
-                passes = Time.parse(object.time_created)  <  Time.parse(time.to_s)
-              when 'created_after'
-                passes = Time.parse(object.time_created)  >= Time.parse(time.to_s)
-              when 'updated_before'
-                passes = Time.parse(object.time_modified) <  Time.parse(time.to_s)
-              when 'updated_after'
-                passes = Time.parse(object.time_modified) >= Time.parse(time.to_s)
-              when 'deleted_before'
-                passes = Time.parse(object.time_deleted)  <  Time.parse(time.to_s)
-              when 'deleted_after'
-                passes = Time.parse(object.time_deleted)  >= Time.parse(time.to_s)
+        filters = args[-1]
+        if filters.is_a?(Hash)
+          time_filters = filters.stringify_keys.only('created_before', 'created_after', 'updated_before', 'updated_after', 'deleted_before', 'deleted_after')
+          if !time_filters.empty?
+            objects.reject! do |object|
+              passes = true if object # When there are no results, we actually get [nil]
+              time_filters.each do |filter,time|
+                break unless passes # Skip the rest of the tests if it fails one
+                case filter
+                when 'created_before'
+                  passes = Time.parse(object.time_created)  <  Time.parse(time.to_s)
+                when 'created_after'
+                  passes = Time.parse(object.time_created)  >= Time.parse(time.to_s)
+                when 'updated_before'
+                  passes = Time.parse(object.time_modified) <  Time.parse(time.to_s)
+                when 'updated_after'
+                  passes = Time.parse(object.time_modified) >= Time.parse(time.to_s)
+                when 'deleted_before'
+                  passes = Time.parse(object.time_deleted)  <  Time.parse(time.to_s)
+                when 'deleted_after'
+                  passes = Time.parse(object.time_deleted)  >= Time.parse(time.to_s)
+                end
               end
+              !passes
             end
-            !passes
+          end
+          valid_filter_keys = (valid_filters + time_filters.keys).map{|s| s.to_sym}
+          invalid_filters = filters.reject{|k,v| valid_filter_keys.include?(k.to_sym)}
+          if invalid_filters.size > 0
+            raise ArgumentError, "Unsupported filter #{invalid_filters.inspect}"
           end
         end
         # ****

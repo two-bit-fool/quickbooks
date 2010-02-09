@@ -126,5 +126,24 @@ EOL
     j.should_not be_nil
     j.destroy
      Quickbooks::Customer.first(:full_name => 'Graham Roosevelt').should be_nil
+   end
+
+  it "should raise an error for an invalid filter" do
+    lambda{
+      Quickbooks::Customer.all(:foobar => 7)
+    }.should raise_error(ArgumentError)
   end
+
+  it "should not raise an error for a valid filter" do
+    lambda{
+      Quickbooks::Customer.all(:active_status => 'ActiveOnly')
+    }.should_not raise_error
+  end
+
+  it "should not raise an error for a time filter" do
+    lambda{
+      Quickbooks::Customer.all(:created_after => Time.now)
+    }.should_not raise_error
+  end
+
 end
