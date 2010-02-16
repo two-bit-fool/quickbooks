@@ -4,6 +4,7 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 require 'rake/contrib/rubyforgepublisher'
+require 'spec/rake/spectask'
 
 PKG_NAME = 'quickbooks'
 PKG_VERSION = "0.4.3"
@@ -39,7 +40,7 @@ spec = Gem::Specification.new do |s|
   #### Dependencies.
   s.add_dependency('formattedstring', '>= 0.1.0')
   s.add_dependency('hash_magic', '>= 0.1.0')
-  
+
   #### Which files are to be included in this gem?  Everything!  (Except CVS directories.)
   s.files = PKG_FILES
 
@@ -75,11 +76,12 @@ task :drop_gem => [:package] do
   `cp pkg/*.gem ~/Dropbox/Public`
 end
 
-desc "Default Task"
-task :default => [ :drop_gem ] do
-  # Run the unit tests
-  # desc "Run all rspec tests (rake task not yet implemented!)"
+desc "Run all specs"
+Spec::Rake::SpecTask.new('spec') do |t|
+  t.spec_files = FileList['specs/**/*.rb']
 end
+
+task :default => :spec
 
 desc "Publish new documentation"
 task :publish => [:doc] do
