@@ -1,4 +1,4 @@
-require 'win32ole'
+require 'win32ole' if Config::CONFIG['host_os'] =~ /mswin|mingw/
 
 module Quickbooks
   # Connection is used internally by Quickbooks::Base to automatically manage a the communication with quickbooks.
@@ -54,16 +54,16 @@ module Quickbooks
     end
 
     class Connection
-      SUPPORT_SIMPLE_START = 0X1
-      SUPPORT_PRO          = 0X2
-      SUPPORT_PREMIER      = 0X4
-      SUPPORT_ENTERPRISE   = 0X8
+      SUPPORT_SIMPLE_START = 0X1 unless defined?(SUPPORT_SIMPLE_START)
+      SUPPORT_PRO          = 0X2 unless defined?(SUPPORT_PRO)
+      SUPPORT_PREMIER      = 0X4 unless defined?(SUPPORT_PREMIER)
+      SUPPORT_ENTERPRISE   = 0X8 unless defined?(SUPPORT_ENTERPRISE)
 
       PERSONAL_DATA = {
         :required   => 0x1,
         :optional   => 0x2,
         :not_needed => 0x3
-      }
+      } unless defined?(PERSONAL_DATA)
 
       class << self #:nodoc: all
         def connections

@@ -6,3 +6,5 @@ require 'quickbooks/models/transaction'
 require 'quickbooks/models/customer'
 require 'quickbooks/models/vendor'
 require 'quickbooks/models/deleted'
+
+require 'quickbooks/adapters/ole_adapter'
