@@ -96,6 +96,8 @@ if MS_WINDOWS
       k.salutation = 'Jr.'
       # Should succeed saving...
       j.save.should eql(true)
+      # QuickBooks race condition bug, if saved at the exact same time, the conflict isn't always detected
+      sleep(1)
       # Should return false, but should have saved the salutation
       k.save.should eql(false)
       j.reload
