@@ -10,6 +10,8 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 if MS_WINDOWS
 
+  ONE_HOUR = 3600
+
   describe "quickbooks" do
     before do
       Quickbooks::Customer.all.each do |cust|
@@ -158,6 +160,7 @@ if MS_WINDOWS
         Quickbooks::Customer.new(:name => @old_customer_name).save
         sleep(2) #QB doesn't do fractions of a second
         @new_customer_time = Time.now
+        @new_customer_time += ONE_HOUR if @new_customer_time.dst? # QuickBooks ignores daylight saving
         Quickbooks::Customer.new(:name => @new_customer_name).save
         Quickbooks::Customer.all.size.should > 0
         Quickbooks::Customer.all.map{|c| c.name}.should include(@new_customer_name)
@@ -192,6 +195,7 @@ if MS_WINDOWS
         Quickbooks::Customer.first(:list_id => @old_customer_id).destroy
         sleep(2) #QB doesn't do fractions of a second
         @deletion_time = Time.now
+        @deletion_time += ONE_HOUR if @deletion_time.dst? # QuickBooks ignores daylight saving
         Quickbooks::Customer.first(:list_id => @new_customer_id).destroy
       end
 

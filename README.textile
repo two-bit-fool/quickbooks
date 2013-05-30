@@ -46,9 +46,27 @@ Read further in Qbxml::Request and Qbxml::Response in order to get a better unde
 
 Again, until a later version, you will need to be running Quickbooks on the same computer _and have quickbooks open_ to the company file you need. The first time you run your script, you will need to authorize access to your script when Quickbooks asks you to.
 
+h2. Caution about *_after and *_before filters
+
+When using time-based filtering, like this...
+
+  Quickbooks::Customer.all(:created_after => Time.now)
+
+...be careful! QuickBooks stores the dates in the local time zone, but IGNORES Daylight Saving (http://goo.gl/UKirY).
+
+So, you'll need to do something like this instead...
+
+  timestamp = Time.now
+  timestamp += 3600 if timestamp.dst?
+  Quickbooks::Customer.all(:created_after => timestamp)
+
+Nice, eh?
+
+
 h2. Authors
 
 * Chris Bruce (mailto:chrisabruce@yahoo.com)
 * Daniel Parker (mailto:gems@behindlogic.com)
+* two-bit-fool
 
 This library is released under the terms of the MIT License.
