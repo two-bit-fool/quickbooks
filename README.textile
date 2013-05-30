@@ -28,6 +28,8 @@ Simply include this gem in your project:
   require 'quickbooks'
 
 Without any configuration, you should be able to talk to Quickbooks immediately if it and a company file is open on the same computer:
+
+<pre>
   # setting unattended_mode to true and personal_data to not_needed has a nice
   # side effect...it reduces the UI controls in the QB confirmation screen
   # to a simple Yes/No radio selection
@@ -41,6 +43,7 @@ Without any configuration, you should be able to talk to Quickbooks immediately 
   c.first_name = 'Joey'
   c.last_name = 'Smith'
   c.save
+</pre>
 
 Read further in Qbxml::Request and Qbxml::Response in order to get a better understanding of the kinds of options you can use. The Quickbooks::Base - inherited models also hold a lot of logic that is specific to each data type.
 
@@ -50,15 +53,19 @@ h2. Caution about *_after and *_before filters
 
 When using time-based filtering, like this...
 
+<pre>
   Quickbooks::Customer.all(:created_after => Time.now)
+</pre>
 
 ...be careful! QuickBooks stores the dates in the local time zone, but IGNORES Daylight Saving (http://goo.gl/UKirY).
 
 So, you'll need to do something like this instead...
 
+<pre>
   timestamp = Time.now
   timestamp += 3600 if timestamp.dst?
   Quickbooks::Customer.all(:created_after => timestamp)
+</pre>
 
 Nice, eh?
 
